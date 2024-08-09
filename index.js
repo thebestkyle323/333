@@ -15,9 +15,12 @@ const bot = new Telegraf(TOKEN);
 
 let RETRY_TIME = 5;
 
-async function sendTgMessage(messages) {
+async function sendTgMessage(title, messages, imageUrl) {
   const message = messages.join('\n');
-  await bot.telegram.sendMessage(CHANNEL_ID, message, { parse_mode: 'Markdown' });
+  await bot.telegram.sendPhoto(CHANNEL_ID, { url: imageUrl }, {
+    caption: `*${title}*\n\n${message}`,
+    parse_mode: 'Markdown'
+  });
 }
 
 async function fetchAppleNewsRss() {
@@ -43,7 +46,9 @@ async function fetchAppleNewsRss() {
     });
 
     if (messages.length > 0) {
-      await sendTgMessage(messages);
+      const imageUrl = 'http://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 替换为您的图片链接
+      const title = 'Apple发布系统更新'; // 固定的标题
+      await sendTgMessage(title, messages, imageUrl);
     } else {
       console.log('No new items found in the last 7 days.');
     }
