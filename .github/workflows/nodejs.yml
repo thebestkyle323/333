@@ -1,46 +1,25 @@
-name: schedule
+name: Fetch RSS and Send to Telegram
 
 on:
   schedule:
-    - cron: "0 * * * *"
-  
+    - cron: '0 */3 * * *'  # 每隔3小时触发一次，你可以根据需求调整触发时间
   workflow_dispatch:
 
 jobs:
-  build:
+  fetch-rss-and-send-tg:
     runs-on: ubuntu-latest
 
-    env:
-      TZ: Asia/Shanghai
-
     steps:
-      - name: Checkout Git Source
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # 设置 Node.js 版本，你可以根据需求选择适合的版本
 
-      - name: Install Dependencies
-        run: yarn install
-      
-             npm install axios  
+    - name: Install dependencies
+      run: npm install
 
-      - name: Run Command
-        run: yarn start
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
-          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
-
-      - name: Commit Files
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add .
-          git commit --allow-empty -m "实时更新微博热搜"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run script to fetch RSS and send to Telegram
+      run: node fetch-rss-and-send-tg.js
