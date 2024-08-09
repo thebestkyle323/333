@@ -15,8 +15,8 @@ const bot = new Telegraf(TOKEN);
 
 let RETRY_TIME = 5;
 
-async function sendTgMessage(title, link) {
-  const message = `${title}\n${link}`;
+async function sendTgMessage(title, link, pubDate) {
+  const message = `${title}\n${link}\n发布时间：${pubDate}`;
   await bot.telegram.sendMessage(CHANNEL_ID, message);
 }
 
@@ -31,24 +31,22 @@ async function fetchAppleNewsRss() {
     const xmlText = await res.text();
     const $ = cheerio.load(xmlText, { xmlMode: true });
 
+    const lastBuildDateString = $('channel > lastBuildDate').text();
+    const lastBuildDate = dayjs(lastBuildDateString, 'ddd, DD MMM YYYY HH:mm:ss ZZ');
+
     $('item').each((index, element) => {
       const title = $(element).find('title').text();
       const link = $(element).find('link').text();
-      const pubDate = $(element).find('pubDate').text();
-      
-      if (isWithinLast30Days(pubDate)) {
-        sendTgMessage(title, link);
+      const pubDateString = $(element).find('pubDate').text();
+      const pubDate = dayjs(pubDateString, 'ddd, DD MMM YYYY HH:mm:ss ZZ');
+
+      if (lastBuildDate.isAfter(dayjs().subtract(7, 'days')) && pubDate.isAfter(dayjs().subtract(7, 'days'))) {
+        sendTgMessage(title, link, pubDate.format('YYYY-MM-DD HH:mm:ss'));
       }
     });
   } catch (err) {
     console.error('Error fetching Apple News RSS:', err);
   }
-}
-
-function isWithinLast30Days(pubDate) {
-  const date = dayjs(pubDate, 'ddd, DD MMM YYYY HH:mm:ss ZZ');
-  const thirtyDaysAgo = dayjs().subtract(30, 'days');
-  return date.isAfter(thirtyDaysAgo);
 }
 
 async function bootstrap() {
