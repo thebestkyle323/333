@@ -1,26 +1,25 @@
-import fs from 'fs-extra';
-import util from 'util';
-import dayjs from 'dayjs';
-import telegraf from 'telegraf';
 import fetch from 'node-fetch';
 import cheerio from 'cheerio';
-
-const { Telegraf } = telegraf;
+import dayjs from 'dayjs';
+import { Telegraf } from 'telegraf';
 
 const TOKEN = process.env.TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
-const APPLE_NEWS_RSS_URL = 'https://developer.apple.com/news/releases/rss/releases.rss'; // 
+const APPLE_NEWS_RSS_URL = 'https://developer.apple.com/news/releases/rss/releases.rss'; // Apple Developer 新闻发布的 RSS 订阅链接
 
 const bot = new Telegraf(TOKEN);
 
-let RETRY_TIME = 5;
-
 async function sendTgMessage(title, messages, imageUrl) {
   const message = messages.join('\n');
-  await bot.telegram.sendPhoto(CHANNEL_ID, { url: imageUrl }, {
-    caption: `*${title}*\n\n${message}`,
-    parse_mode: 'Markdown'
-  });
+  try {
+    await bot.telegram.sendPhoto(CHANNEL_ID, { url: imageUrl }, {
+      caption: `*${title}*\n\n${message}`,
+      parse_mode: 'Markdown'
+    });
+    console.log('Message sent successfully to Telegram channel.');
+  } catch (err) {
+    console.error('Error sending message to Telegram:', err);
+  }
 }
 
 async function fetchAppleNewsRss() {
@@ -46,9 +45,7 @@ async function fetchAppleNewsRss() {
     });
 
     if (messages.length > 0) {
-      const imageUrl = 'http://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 替换为您的图片链
-
-接
+      const imageUrl = 'http://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 替换为您的图片链接
       const title = 'Apple发布系统更新'; // 固定的标题
       await sendTgMessage(title, messages, imageUrl);
     } else {
