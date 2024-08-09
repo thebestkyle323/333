@@ -15,7 +15,7 @@ let RETRY_TIME = 5;
 
 
 // 引入必要的模块
-const axios = require('axios');
+import axios from 'axios';
 const { parseString } = require('xml2js');
 
 // 定义 RSS 源的 URL
