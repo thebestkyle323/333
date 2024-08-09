@@ -24,6 +24,8 @@ jobs:
 
       - name: Install Dependencies
         run: yarn install
+      
+             npm install axios  
 
       - name: Run Command
         run: yarn start
