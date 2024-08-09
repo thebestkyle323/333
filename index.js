@@ -9,7 +9,9 @@ const { Telegraf } = telegraf;
 
 const TOKEN = process.env.TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
-const APPLE_NEWS_RSS_URL = 'https://developer.apple.com/news/releases/rss/releases.rss'; // Apple Developer 新闻发布的 RSS 订阅链接
+const APPLE_NEWS_RSS_URL = 'https://developer.apple.com/news/releases/rss/releases.rss'; // Apple Developer 新闻发布的 RSS 订
+
+阅链接
 
 const bot = new Telegraf(TOKEN);
 
@@ -46,7 +48,9 @@ async function fetchAppleNewsRss() {
     });
 
     if (messages.length > 0) {
-      const imageUrl = 'http://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 替换为您的图片链接
+      const imageUrl = 'http://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 替换为您的图片链
+
+接
       const title = 'Apple发布系统更新'; // 固定的标题
       await sendTgMessage(title, messages, imageUrl);
     } else {
