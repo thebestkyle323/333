@@ -5,7 +5,7 @@ import * as cheerio from 'cheerio';
 import _ from 'lodash';
 import telegraf from 'telegraf';
 import axios from 'axios';
-
+import xml2js from 'xml2js';
 const { Telegraf } = telegraf;
 
 const TOKEN = process.env.TOKEN;
