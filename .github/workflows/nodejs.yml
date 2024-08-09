@@ -22,4 +22,5 @@ jobs:
       run: npm install
 
     - name: Run script to fetch RSS and send to Telegram
-      run: ./index.js
+      run: node index.js
+
