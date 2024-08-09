@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import * as cheerio from 'cheerio';
 import _ from 'lodash';
 import telegraf from 'telegraf';
+import axios from 'axios';
 
 const { Telegraf } = telegraf;
 
