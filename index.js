@@ -20,6 +20,11 @@ async function sendTgMessage(title, link) {
   await bot.telegram.sendMessage(CHANNEL_ID, message);
 }
 
+async function sendTestMessage() {
+  const message = '这是一条测试消息，用于确认是否成功抓取并发送 Apple Developer 的最新消息到 Telegram 频道。';
+  await bot.telegram.sendMessage(CHANNEL_ID, message);
+}
+
 async function fetchAppleNewsRss() {
   try {
     const res = await fetch(APPLE_NEWS_RSS_URL);
@@ -47,16 +52,19 @@ function isWithinLast30Days(pubDate) {
 }
 
 async function bootstrap() {
-  while (RETRY_TIME > 0) {
-    try {
-      await fetchAppleNewsRss();
-      RETRY_TIME = 0; // 成功获取 RSS 后退出重试
-    } catch (err) {
-      console.error(err);
-      RETRY_TIME -= 1;
-    }
+  try {
+    // 发送测试消息，用于确认机器人是否可以正常发送消息到频道
+    await sendTestMessage();
+
+    // 执行 RSS 抓取逻辑
+    await fetchAppleNewsRss();
+
+    // 成功获取 RSS 后退出
+    process.exit(0);
+  } catch (err) {
+    console.error(err);
+    process.exit(1); // 出错时退出进程
   }
-  process.exit(0);
 }
 
 bootstrap();
