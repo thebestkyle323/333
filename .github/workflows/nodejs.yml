@@ -22,4 +22,4 @@ jobs:
       run: npm install
 
     - name: Run script to fetch RSS and send to Telegram
-      run: node fetch-rss-and-send-tg.js
+      run: index.js
