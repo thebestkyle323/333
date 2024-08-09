@@ -4,9 +4,8 @@ import dayjs from 'dayjs';
 import * as cheerio from 'cheerio';
 import _ from 'lodash';
 import telegraf from 'telegraf';
-import axios from 'axios';
-import xml2js from 'xml2js';
 const { Telegraf } = telegraf;
+
 
 const TOKEN = process.env.TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
@@ -14,44 +13,54 @@ const bot = new Telegraf(TOKEN);
 
 let RETRY_TIME = 5;
 
-// 引入所需的模块
 
-const { parseStringPromise } = require('xml2js');
+// 引入必要的模块
+const axios = require('axios');
+const { parseString } = require('xml2js');
 
 // 定义 RSS 源的 URL
 const rssUrl = 'https://developer.apple.com/news/releases/rss/releases.rss'; // 替换为实际的 RSS 源 URL
 
+// Telegram Bot 的 Token 和频道 ID
+const TELEGRAM_BOT_TOKEN = 'your_telegram_bot_token'; // 替换成你的 Telegram Bot Token
+const TELEGRAM_CHANNEL_ID = '@your_channel_id'; // 替换成你的 Telegram 频道 ID
 
-// 定义抓取函数
-async function fetchRssAndSendToTelegram() {
-  try {
-    // 发送 HTTP GET 请求获取 RSS 数据
-    const response = await axios.get(rssUrl);
+// 发起 HTTP 请求获取 RSS 数据
+axios.get(rssUrl)
+  .then(response => {
+    // 解析 XML 数据
+    parseString(response.data, (err, result) => {
+      if (err) {
+        console.error('Error parsing RSS XML:', err);
+        return;
+      }
 
-    // 将 XML 数据解析为 JavaScript 对象
-    const xmlData = response.data;
-    const parsedData = await parseStringPromise(xmlData);
+      // 解析得到的 RSS 数据
+      const rssItems = result.rss.channel[0].item;
 
-    // 提取所需的 title 和 link 字段
-    const items = parsedData.rss.channel[0].item;
-    const markdownMessages = items.map(item => {
-      const title = item.title[0];
-      const link = item.link[0];
-      return `[${title}](${link})`;
+      // 构建 Markdown 格式的消息内容
+      const markdownContent = rssItems.map(item => `- [${item.title}](${item.link})`).join('\n');
+
+      // 发送到 Telegram 频道
+      sendTelegramMessage(markdownContent);
     });
+  })
+  .catch(error => {
+    console.error('Error fetching RSS feed:', error);
+  });
 
-    // 合并成一个 Markdown 格式的字符串
-    const markdownText = markdownMessages.join('\n');
-
-    // 发送到 Telegram 频道
-    await bot.sendMessage(CHANNEL_ID, markdownText, { parse_mode: 'Markdown' });
-    console.log('RSS 抓取并发送成功！');
-  } catch (error) {
-    console.error('Error fetching or sending RSS feed:', error);
-  }
+// 函数：使用 Telegram Bot 发送消息到频道
+function sendTelegramMessage(message) {
+  axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    chat_id: TELEGRAM_CHANNEL_ID,
+    text: message,
+    parse_mode: 'Markdown'
+  })
+  .then(response => {
+    console.log('Message sent to Telegram:', response.data);
+  })
+  .catch(error => {
+    console.error('Error sending message to Telegram:', error);
+  });
 }
 
-// 调用抓取函数
-fetchRssAndSendToTelegram();
-
-bootstrap();
