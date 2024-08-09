@@ -15,7 +15,7 @@ const bot = new Telegraf(TOKEN);
 let RETRY_TIME = 5;
 
 // 引入所需的模块
-const axios = require('axios');
+
 const { parseStringPromise } = require('xml2js');
 
 // 定义 RSS 源的 URL
