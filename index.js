@@ -3,18 +3,12 @@ import Telegraf from 'telegraf';
 import fetch from 'node-fetch';
 import cheerio from 'cheerio';
 
-const { Telegraf } = Telegraf;
-
-const TOKEN = process.env.TOKEN;
-const CHANNEL_ID = process.env.CHANNEL_ID;
-const APPLE_NEWS_RSS_URL = 'https://developer.apple.com/news/releases/rss/releases.rss'; 
-
-const bot = new Telegraf(TOKEN);
+const bot = new Telegraf(process.env.TOKEN);
 
 async function sendTgMessage(title, messages, imageUrl) {
   const message = messages.join('\n');
   try {
-    await bot.telegram.sendPhoto(CHANNEL_ID, { url: imageUrl }, {
+    await bot.telegram.sendPhoto(process.env.CHANNEL_ID, { url: imageUrl }, {
       caption: `*${title}*\n\n${message}`,
       parse_mode: 'Markdown'
     });
@@ -26,7 +20,7 @@ async function sendTgMessage(title, messages, imageUrl) {
 
 async function fetchAppleNewsRss() {
   try {
-    const res = await fetch(APPLE_NEWS_RSS_URL);
+    const res = await fetch('https://developer.apple.com/news/releases/rss/releases.rss');
     const xmlText = await res.text();
     const $ = cheerio.load(xmlText, { xmlMode: true });
 
