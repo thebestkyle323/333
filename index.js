@@ -1,13 +1,15 @@
 import fetch from 'node-fetch';
 import cheerio from 'cheerio';
 import dayjs from 'dayjs';
-import { Telegraf } from 'telegraf';
+import Telegraf from 'telegraf'; // 注意这里的导入方式变为整体导入
+import dotenv from 'dotenv';
 
-const TOKEN = process.env.TOKEN;
-const CHANNEL_ID = process.env.CHANNEL_ID;
+dotenv.config();
+
+const { TOKEN, CHANNEL_ID } = process.env;
 const APPLE_NEWS_RSS_URL = 'https://developer.apple.com/news/releases/rss/releases.rss'; // Apple Developer 新闻发布的 RSS 订阅链接
 
-const bot = new Telegraf(TOKEN);
+const bot = new Telegraf.Telegraf(TOKEN); // 这里也需要调整为使用 Telegraf.Telegraf
 
 async function sendTgMessage(title, messages, imageUrl) {
   const message = messages.join('\n');
