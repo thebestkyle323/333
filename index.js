@@ -1,15 +1,15 @@
+import dayjs from 'dayjs';
+import Telegraf from 'telegraf';
 import fetch from 'node-fetch';
 import cheerio from 'cheerio';
-import dayjs from 'dayjs';
-import Telegraf from 'telegraf'; // 注意这里的导入方式变为整体导入
-import dotenv from 'dotenv';
 
-dotenv.config();
+const { Telegraf } = Telegraf;
 
-const { TOKEN, CHANNEL_ID } = process.env;
-const APPLE_NEWS_RSS_URL = 'https://developer.apple.com/news/releases/rss/releases.rss'; // Apple Developer 新闻发布的 RSS 订阅链接
+const TOKEN = process.env.TOKEN;
+const CHANNEL_ID = process.env.CHANNEL_ID;
+const APPLE_NEWS_RSS_URL = 'https://developer.apple.com/news/releases/rss/releases.rss'; 
 
-const bot = new Telegraf.Telegraf(TOKEN); // 这里也需要调整为使用 Telegraf.Telegraf
+const bot = new Telegraf(TOKEN);
 
 async function sendTgMessage(title, messages, imageUrl) {
   const message = messages.join('\n');
@@ -47,7 +47,7 @@ async function fetchAppleNewsRss() {
     });
 
     if (messages.length > 0) {
-      const imageUrl = 'http://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 替换为您的图片链接
+      const imageUrl = 'http://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 
       const title = 'Apple发布系统更新'; // 固定的标题
       await sendTgMessage(title, messages, imageUrl);
     } else {
