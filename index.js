@@ -3,6 +3,7 @@ import util from 'util';
 import dayjs from 'dayjs';
 import telegraf from 'telegraf';
 import fetch from 'node-fetch';
+import cheerio from 'cheerio';
 
 const { Telegraf } = telegraf;
 
@@ -23,16 +24,26 @@ async function fetchAppleNewsRss() {
   try {
     const res = await fetch(APPLE_NEWS_RSS_URL);
     const xmlText = await res.text();
-    const cheerio = require('cheerio');
-    const $ = cheerio.load(xmlText);
+    const $ = cheerio.load(xmlText, { xmlMode: true });
+
     $('item').each((index, element) => {
       const title = $(element).find('title').text();
       const link = $(element).find('link').text();
-      sendTgMessage(title, link);
+      const pubDate = $(element).find('pubDate').text();
+      
+      if (isWithinLast30Days(pubDate)) {
+        sendTgMessage(title, link);
+      }
     });
   } catch (err) {
     console.error('Error fetching Apple News RSS:', err);
   }
+}
+
+function isWithinLast30Days(pubDate) {
+  const date = dayjs(pubDate, 'ddd, DD MMM YYYY HH:mm:ss ZZ');
+  const thirtyDaysAgo = dayjs().subtract(30, 'days');
+  return date.isAfter(thirtyDaysAgo);
 }
 
 async function bootstrap() {
