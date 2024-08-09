@@ -41,7 +41,7 @@ async function fetchAppleNewsRss() {
     });
 
     if (messages.length > 0) {
-      const imageUrl = 'http://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 
+      const imageUrl = 'https://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 
       const title = 'Apple发布系统更新'; // 固定的标题
       await sendTgMessage(title, messages, imageUrl);
     } else {
