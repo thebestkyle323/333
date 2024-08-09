@@ -1,55 +1,51 @@
-import { Telegraf } from 'telegraf';
-import axios from 'axios';
+import fs from 'fs-extra';
+import util from 'util';
 import dayjs from 'dayjs';
+import telegraf from 'telegraf';
+import fetch from 'node-fetch';
+
+const { Telegraf } = telegraf;
 
 const TOKEN = process.env.TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
-const RSS_FEED_URL = 'https://developer.apple.com/news/releases/rss/releases.rss';  // 替换为你的 RSS 源链接
+const APPLE_NEWS_RSS_URL = 'https://developer.apple.com/news/releases/rss/releases.rss'; // Apple Developer 新闻发布的 RSS 订阅链接
 
 const bot = new Telegraf(TOKEN);
 
-async function fetchRssFeed() {
-  try {
-    const response = await axios.get(RSS_FEED_URL);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch RSS feed:', error);
-    return null;
-  }
+let RETRY_TIME = 5;
+
+async function sendTgMessage(title, link) {
+  const message = `${title}\n${link}`;
+  await bot.telegram.sendMessage(CHANNEL_ID, message);
 }
 
-async function formatAndSendToTelegram(feed) {
-  if (!feed || !feed.items) {
-    console.error('Invalid RSS feed format');
-    return;
-  }
-
-  const items = feed.items.slice(0, 5); // 只处理前 5 条
-  const markdownLines = items.map((item, index) => {
-    return `${index + 1}. [${item.title}](${item.link})`;
-  });
-
-  const message = `
-${dayjs().format('YYYY-MM-DD HH:mm:ss')} RSS Feed:
-${markdownLines.join('\n')}
-`;
-
+async function fetchAppleNewsRss() {
   try {
-    await bot.telegram.sendMessage(CHANNEL_ID, message, {
-      parse_mode: 'Markdown',
-      disable_web_page_preview: true,
+    const res = await fetch(APPLE_NEWS_RSS_URL);
+    const xmlText = await res.text();
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(xmlText);
+    $('item').each((index, element) => {
+      const title = $(element).find('title').text();
+      const link = $(element).find('link').text();
+      sendTgMessage(title, link);
     });
-    console.log('Message sent successfully');
-  } catch (error) {
-    console.error('Error sending message to Telegram:', error);
+  } catch (err) {
+    console.error('Error fetching Apple News RSS:', err);
   }
 }
 
-async function main() {
-  const feed = await fetchRssFeed();
-  if (feed) {
-    await formatAndSendToTelegram(feed);
+async function bootstrap() {
+  while (RETRY_TIME > 0) {
+    try {
+      await fetchAppleNewsRss();
+      RETRY_TIME = 0; // 成功获取 RSS 后退出重试
+    } catch (err) {
+      console.error(err);
+      RETRY_TIME -= 1;
+    }
   }
+  process.exit(0);
 }
 
-main();
+bootstrap();
