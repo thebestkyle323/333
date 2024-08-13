@@ -36,7 +36,7 @@ async function fetchAppleNewsRss() {
       const pubDate = dayjs(pubDateString, 'ddd, DD MMM YYYY HH:mm:ss ZZ');
 
       if (lastBuildDate.isAfter(dayjs().subtract(1, 'days')) && pubDate.isAfter(dayjs().subtract(1, 'days'))) {
-        messages.push(`[${title}](${link}) - ${pubDate.format('YYYY-MM-DD HH:mm:ss')}`);
+        messages.push(`[${title}](${link}) - ${pubDate.format('YYYY-MM-DD')}`);
       }
     });
 
