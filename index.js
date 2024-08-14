@@ -38,7 +38,7 @@ async function fetchAppleNewsRss() {
       const pubDate = dayjs(pubDateString, 'ddd, DD MMM YYYY HH:mm:ss ZZ');
 
       // 修改为 58 小时内的内容
-      if (lastBuildDate.isAfter(dayjs().subtract(58, 'hours')) && pubDate.isAfter(dayjs().subtract(58, 'hours'))) {
+      if (lastBuildDate.isAfter(dayjs().subtract(12, 'hours')) && pubDate.isAfter(dayjs().subtract(12, 'hours'))) {
         messages.push(`${index}. [${title}](${link}) - ${pubDate.format('YYYY-MM-DD')}`);
         index++; // 增加序号
       }
