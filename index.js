@@ -29,23 +29,27 @@ async function fetchAppleNewsRss() {
 
     const messages = [];
 
-    $('item').each((index, element) => {
+    let index = 1; // 初始化序号
+
+    $('item').each((_, element) => {
       const title = $(element).find('title').text();
       const link = $(element).find('link').text();
       const pubDateString = $(element).find('pubDate').text();
       const pubDate = dayjs(pubDateString, 'ddd, DD MMM YYYY HH:mm:ss ZZ');
 
-       if (lastBuildDate.isAfter(dayjs().subtract(58, 'hours')) && pubDate.isAfter(dayjs().subtract(58, 'hours'))) {
-        messages.push(`[${title}](${link}) - ${pubDate.format('YYYY-MM-DD')}`);
+      // 修改为 58 小时内的内容
+      if (lastBuildDate.isAfter(dayjs().subtract(58, 'hours')) && pubDate.isAfter(dayjs().subtract(58, 'hours'))) {
+        messages.push(`${index}. [${title}](${link}) - ${pubDate.format('YYYY-MM-DD')}`);
+        index++; // 增加序号
       }
     });
 
     if (messages.length > 0) {
-      const imageUrl = 'https://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 
-      const title = 'Apple发布系统更新'; // 固定的标题
+      const imageUrl = 'https://app.iwanshare.club/uploads/20240809/e0eb992abff3daa8fe192de457a8039c.jpg'; // 图片 URL
+      const title = 'Apple发布系统更新'; // 固定标题
       await sendTgMessage(title, messages, imageUrl);
     } else {
-      console.log('No new items found in the last 7 days.');
+      console.log('No new items found in the last 58 hours.');
     }
   } catch (err) {
     console.error('Error fetching Apple News RSS:', err);
